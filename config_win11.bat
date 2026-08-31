@@ -12,27 +12,10 @@ echo Applying Windows 11 appearance tweaks...
 echo.
 
 :: ==========================================================
-:: BACKUP CURRENT REGISTRY KEYS
-:: ==========================================================
-
-echo [1/15] Creating registry backup...
-
-mkdir "%USERPROFILE%\Desktop\Win11_Backup" >nul 2>&1
-
-reg export "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
-"%USERPROFILE%\Desktop\Win11_Backup\Explorer_Advanced.reg" /y >nul 2>&1
-
-reg export "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" ^
-"%USERPROFILE%\Desktop\Win11_Backup\Personalize.reg" /y >nul 2>&1
-
-echo [OK] Backup created on Desktop.
-echo.
-
-:: ==========================================================
 :: DARK THEME
 :: ==========================================================
 
-echo [2/15] Enabling Dark Theme...
+echo [1/14] Enabling Dark Theme...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" ^
  /v AppsUseLightTheme /t REG_DWORD /d 0 /f >nul
@@ -47,7 +30,7 @@ echo.
 :: ALIGN TASKBAR TO THE LEFT
 :: ==========================================================
 
-echo [3/15] Moving taskbar icons to the left...
+echo [2/14] Moving taskbar icons to the left...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v TaskbarAl /t REG_DWORD /d 0 /f >nul
@@ -59,7 +42,7 @@ echo.
 :: SMALL TASKBAR ICONS
 :: ==========================================================
 
-echo [4/15] Setting small taskbar size...
+echo [3/14] Setting small taskbar size...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v TaskbarSi /t REG_DWORD /d 0 /f >nul
@@ -71,7 +54,7 @@ echo.
 :: DISABLE TASK VIEW BUTTON
 :: ==========================================================
 
-echo [5/15] Removing Task View button...
+echo [4/14] Removing Task View button...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v ShowTaskViewButton /t REG_DWORD /d 0 /f >nul
@@ -83,7 +66,7 @@ echo.
 :: SEARCH BAR CONFIGURATION
 :: ==========================================================
 
-echo [6/15] Configuring search icon...
+echo [5/14] Configuring search icon...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" ^
  /v SearchboxTaskbarMode /t REG_DWORD /d 1 /f >nul
@@ -95,31 +78,26 @@ echo.
 :: WIDGETS / NEWS & INTERESTS
 :: ==========================================================
 
-echo [7/15] Disabling Widgets...
+echo [6/14] Disabling Widgets and News feed...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v TaskbarDa /t REG_DWORD /d 0 /f >nul
 
-echo [OK] Widgets disabled.
-echo.
+:: Disable the News and Interests feed itself (0 = disabled, not just hidden)
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Feeds" ^
+ /v ShellFeedsTaskbarViewMode /t REG_DWORD /d 2 /f >nul 2>&1
 
-:: ==========================================================
-:: CHAT / TEAMS ICON
-:: ==========================================================
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Feeds" ^
+ /v EnableFeeds /t REG_DWORD /d 0 /f >nul 2>&1
 
-echo [8/15] Disabling Chat / Teams on taskbar...
-
-reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
- /v TaskbarMn /t REG_DWORD /d 0 /f >nul
-
-echo [OK] Chat icon disabled.
+echo [OK] Widgets and News feed disabled.
 echo.
 
 :: ==========================================================
 :: START MENU RECOMMENDATIONS
 :: ==========================================================
 
-echo [9/15] Disabling Start menu recommendations...
+echo [7/14] Disabling Start menu recommendations...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Start" ^
  /v ShowRecentList /t REG_DWORD /d 0 /f >nul 2>&1
@@ -134,7 +112,7 @@ echo.
 :: FILE EXPLORER -> THIS PC
 :: ==========================================================
 
-echo [10/15] Setting File Explorer default location to "This PC"...
+echo [8/14] Setting File Explorer default location to "This PC"...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v LaunchTo /t REG_DWORD /d 1 /f >nul
@@ -146,7 +124,7 @@ echo.
 :: SHOW FILE EXTENSIONS
 :: ==========================================================
 
-echo [11/15] Showing file extensions...
+echo [9/14] Showing file extensions...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v HideFileExt /t REG_DWORD /d 0 /f >nul
@@ -158,7 +136,7 @@ echo.
 :: SHOW HIDDEN FILES
 :: ==========================================================
 
-echo [12/15] Enabling hidden files visibility...
+echo [10/14] Enabling hidden files visibility...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v Hidden /t REG_DWORD /d 1 /f >nul
@@ -170,7 +148,7 @@ echo.
 :: DISABLE TRANSPARENCY EFFECTS
 :: ==========================================================
 
-echo [13/15] Disabling transparency effects...
+echo [11/14] Disabling transparency effects...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" ^
  /v EnableTransparency /t REG_DWORD /d 0 /f >nul
@@ -182,7 +160,7 @@ echo.
 :: RESTORE CLASSIC CONTEXT MENU
 :: ==========================================================
 
-echo [14/15] Restoring classic right-click context menu...
+echo [12/14] Restoring classic right-click context menu...
 
 reg add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" ^
  /ve /t REG_SZ /d "" /f >nul
@@ -194,7 +172,7 @@ echo.
 :: DESKTOP ICONS
 :: ==========================================================
 
-echo [15/15] Enabling classic desktop icons...
+echo [13/14] Enabling classic desktop icons...
 
 set "ICONS=HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel"
 
@@ -214,7 +192,7 @@ echo.
 :: INTERFACE ANIMATION TWEAKS
 :: ==========================================================
 
-echo Optimizing UI animations...
+echo [14/14] Optimizing UI animations...
 
 reg add "HKCU\Control Panel\Desktop\WindowMetrics" ^
  /v MinAnimate /t REG_SZ /d 0 /f >nul
@@ -226,6 +204,35 @@ reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v ListviewShadow /t REG_DWORD /d 0 /f >nul
 
 echo [OK] UI animations reduced.
+echo.
+
+:: ==========================================================
+:: INSTALL BRAVE BROWSER
+:: ==========================================================
+
+echo Checking Brave Browser...
+
+if exist "%ProgramFiles%\BraveSoftware\Brave-Browser\Application\brave.exe" (
+    echo [OK] Brave is already installed.
+) else if exist "%ProgramFiles(x86)%\BraveSoftware\Brave-Browser\Application\brave.exe" (
+    echo [OK] Brave is already installed.
+) else if exist "%LocalAppData%\BraveSoftware\Brave-Browser\Application\brave.exe" (
+    echo [OK] Brave is already installed.
+) else (
+    where winget >nul 2>&1
+    if %errorlevel%==0 (
+        echo Installing Brave Browser via winget, please wait...
+        winget install --id Brave.Brave --silent --accept-package-agreements --accept-source-agreements
+        if %errorlevel%==0 (
+            echo [OK] Brave Browser installed.
+        ) else (
+            echo [WARNING] Brave installation failed. Install manually from https://brave.com
+        )
+    ) else (
+        echo [WARNING] winget not found. Cannot auto-install Brave.
+        echo Please install manually from https://brave.com
+    )
+)
 echo.
 
 :: ==========================================================
@@ -258,8 +265,7 @@ echo.
 echo   [OK] Left-aligned taskbar
 echo   [OK] Small taskbar icons
 echo   [OK] Disabled Task View
-echo   [OK] Disabled Widgets
-echo   [OK] Disabled Chat icon
+echo   [OK] Disabled Widgets and News feed
 echo   [OK] Search icon mode
 echo   [OK] Classic context menu
 echo   [OK] Dark mode enabled
@@ -268,14 +274,14 @@ echo   [OK] File extensions shown
 echo   [OK] Hidden files shown
 echo   [OK] File Explorer opens to "This PC"
 echo   [OK] Transparency disabled
-echo.
-echo Backup location:
-echo %USERPROFILE%\Desktop\Win11_Backup
+echo   [OK] Brave Browser installed (if not already present)
 echo.
 echo ==========================================================
 echo.
 echo NOTE:
 echo Some changes may require logging out or restarting Windows.
+echo If the News feed icon still appears, right-click the taskbar,
+echo choose "Widgets" settings, or restart the PC once to fully apply.
 echo.
 pause
 
