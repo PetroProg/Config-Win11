@@ -15,7 +15,7 @@ echo.
 :: DARK THEME
 :: ==========================================================
 
-echo [1] Enabling Dark Theme...
+echo Enabling Dark Theme...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" ^
  /v AppsUseLightTheme /t REG_DWORD /d 0 /f >nul
@@ -30,7 +30,7 @@ echo.
 :: ALIGN TASKBAR TO THE LEFT
 :: ==========================================================
 
-echo [2] Moving taskbar icons to the left...
+echo Moving taskbar icons to the left...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v TaskbarAl /t REG_DWORD /d 0 /f >nul
@@ -42,7 +42,7 @@ echo.
 :: SMALL TASKBAR ICONS
 :: ==========================================================
 
-echo [3] Setting small taskbar size...
+echo Setting small taskbar size...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v TaskbarSi /t REG_DWORD /d 0 /f >nul
@@ -54,7 +54,7 @@ echo.
 :: DISABLE TASK VIEW BUTTON
 :: ==========================================================
 
-echo [4] Removing Task View button...
+echo Removing Task View button...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v ShowTaskViewButton /t REG_DWORD /d 0 /f >nul
@@ -66,7 +66,7 @@ echo.
 :: SEARCH BAR CONFIGURATION
 :: ==========================================================
 
-echo [5] Configuring search icon...
+echo Configuring search icon...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" ^
  /v SearchboxTaskbarMode /t REG_DWORD /d 1 /f >nul
@@ -78,7 +78,7 @@ echo.
 :: WIDGETS / NEWS & INTERESTS
 :: ==========================================================
 
-echo [6] Disabling Widgets and News feed...
+echo Disabling Widgets and News feed...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v TaskbarDa /t REG_DWORD /d 0 /f >nul
@@ -97,7 +97,7 @@ echo.
 :: START MENU RECOMMENDATIONS
 :: ==========================================================
 
-echo [7] Disabling Start menu recommendations...
+echo Disabling Start menu recommendations...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Start" ^
  /v ShowRecentList /t REG_DWORD /d 0 /f >nul 2>&1
@@ -105,38 +105,38 @@ reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Start" ^
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Start" ^
  /v ShowFrequentList /t REG_DWORD /d 0 /f >nul 2>&1
 
-echo [OK] Start menu recommendations configured.
+echo Start menu recommendations configured.
 echo.
 
 :: ==========================================================
 :: FILE EXPLORER -> THIS PC
 :: ==========================================================
 
-echo [8] Setting File Explorer default location to "This PC"...
+echo Setting File Explorer default location to "This PC"...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v LaunchTo /t REG_DWORD /d 1 /f >nul
 
-echo [OK] File Explorer will open "This PC".
+echo File Explorer will open "This PC".
 echo.
 
 :: ==========================================================
 :: SHOW FILE EXTENSIONS
 :: ==========================================================
 
-echo [9] Showing file extensions...
+echo Showing file extensions...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v HideFileExt /t REG_DWORD /d 0 /f >nul
 
-echo [OK] File extensions enabled (.exe, .txt, .jpg, etc.).
+echo File extensions enabled (.exe, .txt, .jpg, etc.).
 echo.
 
 :: ==========================================================
 :: SHOW HIDDEN FILES
 :: ==========================================================
 
-echo [10] Enabling hidden files visibility...
+echo Enabling hidden files visibility...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v Hidden /t REG_DWORD /d 1 /f >nul
@@ -148,7 +148,7 @@ echo.
 :: DISABLE TRANSPARENCY EFFECTS
 :: ==========================================================
 
-echo [11] Disabling transparency effects...
+echo Disabling transparency effects...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" ^
  /v EnableTransparency /t REG_DWORD /d 0 /f >nul
@@ -160,7 +160,7 @@ echo.
 :: RESTORE CLASSIC CONTEXT MENU
 :: ==========================================================
 
-echo [12] Restoring classic right-click context menu...
+echo Restoring classic right-click context menu...
 
 reg add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" ^
  /ve /t REG_SZ /d "" /f >nul
@@ -172,7 +172,7 @@ echo.
 :: DESKTOP ICONS
 :: ==========================================================
 
-echo [13] Enabling classic desktop icons...
+echo Enabling classic desktop icons...
 
 set "ICONS=HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel"
 
@@ -192,7 +192,7 @@ echo.
 :: INTERFACE ANIMATION TWEAKS
 :: ==========================================================
 
-echo [14] Optimizing UI animations...
+echo Optimizing UI animations...
 
 reg add "HKCU\Control Panel\Desktop\WindowMetrics" ^
  /v MinAnimate /t REG_SZ /d 0 /f >nul
@@ -207,18 +207,33 @@ echo [OK] UI animations reduced.
 echo.
 
 :: ==========================================================
-:: KEYBOARD LAYOUTS (REMOVE GERMAN, ADD RUSSIAN)
+:: KEYBOARD LAYOUTS (PURGE GERMAN & FORCE FR-CH / RU-RU)
 :: ==========================================================
 
-echo [15] Updating keyboard layouts...
+echo Updating keyboard layouts...
 
 powershell -NoProfile -Command ^
  "$langs = Get-WinUserLanguageList; " ^
- "$langs = $langs | Where-Language -LanguageTag 'de-DE' -Exclude; " ^
- "if (-not ($langs | Where-Language -LanguageTag 'ru-RU')) { $langs.Add('ru-RU') }; " ^
- "Set-WinUserLanguageList -LanguageList $langs -Force" >nul 2>&1
+ "$langs = $langs | Where-Object { $_.LanguageTag -notlike 'de*' }; " ^
+ "if (-not ($langs | Where-Object { $_.LanguageTag -eq 'ru-RU' })) { $langs.Add('ru-RU') }; " ^
+ "Set-WinUserLanguageList -LanguageList $langs -Force; " ^
+ "Set-WinDefaultInputMethodOverride -InputTip '040c:0000100c'; " ^
+ "Remove-ItemProperty -Path 'HKCU:\Control Panel\International\User Profile' -Name 'de-CH' -ErrorAction SilentlyContinue; " ^
+ "Remove-ItemProperty -Path 'HKCU:\Control Panel\International\User Profile' -Name 'de-DE' -ErrorAction SilentlyContinue; " ^
+ "Stop-Process -Name 'ctfmon' -Force -ErrorAction SilentlyContinue; " ^
+ "Start-Process 'ctfmon.exe'" >nul 2>&1
 
-echo [OK] German language removed and Russian language added.
+:: Clean registry preload and forced overrides
+reg add "HKCU\Keyboard Layout\Preload" /v "1" /t REG_SZ /d "0000100c" /f >nul
+reg add "HKCU\Keyboard Layout\Preload" /v "2" /t REG_SZ /d "00000419" /f >nul
+reg delete "HKCU\Keyboard Layout\Preload" /v "3" /f >nul 2>&1
+reg delete "HKCU\Keyboard Layout\Preload" /v "4" /f >nul 2>&1
+
+:: Remove phantom German layouts from registry profile
+reg delete "HKCU\Control Panel\International\User Profile\de-CH" /f >nul 2>&1
+reg delete "HKCU\Control Panel\International\User Profile\de-DE" /f >nul 2>&1
+
+echo [OK] Keyboard layout updated (French and Russian only).
 echo.
 
 :: ==========================================================
@@ -285,6 +300,50 @@ if exist "%ProgramFiles%\BraveSoftware\Brave-Browser\Application\brave.exe" (
         echo Please install manually from https://brave.com
     )
 )
+echo.
+
+:: ==========================================================
+:: REMOVE ONEDRIVE SYSTEM TRAY ICON
+:: ==========================================================
+
+echo Hiding OneDrive icon from system tray...
+
+:: Prevent OneDrive from autostarting with Windows
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "OneDrive" /f >nul 2>&1
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "OneDriveSetup" /f >nul 2>&1
+
+:: Kill running OneDrive process
+taskkill /f /im OneDrive.exe >nul 2>&1
+
+echo [OK] OneDrive autostart disabled and icon removed.
+echo.
+
+:: ==========================================================
+:: UNPIN MICROSOFT STORE & PIN BRAVE TO TASKBAR
+:: ==========================================================
+
+echo Managing Taskbar pinned icons...
+
+powershell -NoProfile -Command ^
+ "$path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband'; " ^
+ "if (Test-Path $path) { " ^
+ "  $bytes = Get-ItemPropertyValue -Path $path -Name 'Favorites' -ErrorAction SilentlyContinue; " ^
+ "}" >nul 2>&1
+
+:: Delete pinned Taskbar shortcuts via shell XML/Registry profile
+powershell -NoProfile -Command ^
+ "$TaskbandPath = '$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar'; " ^
+ "Get-ChildItem -Path $TaskbandPath -Filter '*Microsoft Store*' -ErrorAction SilentlyContinue | Remove-Item -Force; " ^
+ "$BravePath = 'C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe'; " ^
+ "if (-not (Test-Path $BravePath)) { $BravePath = 'C:\Program Files (x86)\BraveSoftware\Brave-Browser\Application\brave.exe' }; " ^
+ "if (Test-Path $BravePath) { " ^
+ "  $wsh = New-Object -ComObject WScript.Shell; " ^
+ "  $sc = $wsh.CreateShortcut(\"$TaskbandPath\Brave.lnk\"); " ^
+ "  $sc.TargetPath = $BravePath; " ^
+ "  $sc.Save(); " ^
+ "}" >nul 2>&1
+
+echo [OK] Taskbar pins updated.
 echo.
 
 :: ==========================================================
