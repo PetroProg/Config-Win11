@@ -15,7 +15,7 @@ echo.
 :: DARK THEME
 :: ==========================================================
 
-echo [1/14] Enabling Dark Theme...
+echo [1] Enabling Dark Theme...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" ^
  /v AppsUseLightTheme /t REG_DWORD /d 0 /f >nul
@@ -30,7 +30,7 @@ echo.
 :: ALIGN TASKBAR TO THE LEFT
 :: ==========================================================
 
-echo [2/14] Moving taskbar icons to the left...
+echo [2] Moving taskbar icons to the left...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v TaskbarAl /t REG_DWORD /d 0 /f >nul
@@ -42,7 +42,7 @@ echo.
 :: SMALL TASKBAR ICONS
 :: ==========================================================
 
-echo [3/14] Setting small taskbar size...
+echo [3] Setting small taskbar size...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v TaskbarSi /t REG_DWORD /d 0 /f >nul
@@ -54,7 +54,7 @@ echo.
 :: DISABLE TASK VIEW BUTTON
 :: ==========================================================
 
-echo [4/14] Removing Task View button...
+echo [4] Removing Task View button...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v ShowTaskViewButton /t REG_DWORD /d 0 /f >nul
@@ -66,7 +66,7 @@ echo.
 :: SEARCH BAR CONFIGURATION
 :: ==========================================================
 
-echo [5/14] Configuring search icon...
+echo [5] Configuring search icon...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" ^
  /v SearchboxTaskbarMode /t REG_DWORD /d 1 /f >nul
@@ -78,7 +78,7 @@ echo.
 :: WIDGETS / NEWS & INTERESTS
 :: ==========================================================
 
-echo [6/14] Disabling Widgets and News feed...
+echo [6] Disabling Widgets and News feed...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v TaskbarDa /t REG_DWORD /d 0 /f >nul
@@ -97,7 +97,7 @@ echo.
 :: START MENU RECOMMENDATIONS
 :: ==========================================================
 
-echo [7/14] Disabling Start menu recommendations...
+echo [7] Disabling Start menu recommendations...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Start" ^
  /v ShowRecentList /t REG_DWORD /d 0 /f >nul 2>&1
@@ -112,7 +112,7 @@ echo.
 :: FILE EXPLORER -> THIS PC
 :: ==========================================================
 
-echo [8/14] Setting File Explorer default location to "This PC"...
+echo [8] Setting File Explorer default location to "This PC"...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v LaunchTo /t REG_DWORD /d 1 /f >nul
@@ -124,7 +124,7 @@ echo.
 :: SHOW FILE EXTENSIONS
 :: ==========================================================
 
-echo [9/14] Showing file extensions...
+echo [9] Showing file extensions...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v HideFileExt /t REG_DWORD /d 0 /f >nul
@@ -136,7 +136,7 @@ echo.
 :: SHOW HIDDEN FILES
 :: ==========================================================
 
-echo [10/14] Enabling hidden files visibility...
+echo [10] Enabling hidden files visibility...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v Hidden /t REG_DWORD /d 1 /f >nul
@@ -148,7 +148,7 @@ echo.
 :: DISABLE TRANSPARENCY EFFECTS
 :: ==========================================================
 
-echo [11/14] Disabling transparency effects...
+echo [11] Disabling transparency effects...
 
 reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize" ^
  /v EnableTransparency /t REG_DWORD /d 0 /f >nul
@@ -160,7 +160,7 @@ echo.
 :: RESTORE CLASSIC CONTEXT MENU
 :: ==========================================================
 
-echo [12/14] Restoring classic right-click context menu...
+echo [12] Restoring classic right-click context menu...
 
 reg add "HKCU\Software\Classes\CLSID\{86ca1aa0-34aa-4e8b-a509-50c905bae2a2}\InprocServer32" ^
  /ve /t REG_SZ /d "" /f >nul
@@ -172,7 +172,7 @@ echo.
 :: DESKTOP ICONS
 :: ==========================================================
 
-echo [13/14] Enabling classic desktop icons...
+echo [13] Enabling classic desktop icons...
 
 set "ICONS=HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\HideDesktopIcons\NewStartPanel"
 
@@ -192,7 +192,7 @@ echo.
 :: INTERFACE ANIMATION TWEAKS
 :: ==========================================================
 
-echo [14/14] Optimizing UI animations...
+echo [14] Optimizing UI animations...
 
 reg add "HKCU\Control Panel\Desktop\WindowMetrics" ^
  /v MinAnimate /t REG_SZ /d 0 /f >nul
@@ -204,6 +204,58 @@ reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
  /v ListviewShadow /t REG_DWORD /d 0 /f >nul
 
 echo [OK] UI animations reduced.
+echo.
+
+:: ==========================================================
+:: KEYBOARD LAYOUTS (REMOVE GERMAN, ADD RUSSIAN)
+:: ==========================================================
+
+echo [15] Updating keyboard layouts...
+
+powershell -NoProfile -Command ^
+ "$langs = Get-WinUserLanguageList; " ^
+ "$langs = $langs | Where-Language -LanguageTag 'de-DE' -Exclude; " ^
+ "if (-not ($langs | Where-Language -LanguageTag 'ru-RU')) { $langs.Add('ru-RU') }; " ^
+ "Set-WinUserLanguageList -LanguageList $langs -Force" >nul 2>&1
+
+echo [OK] German language removed and Russian language added.
+echo.
+
+:: ==========================================================
+:: SHOW SECONDS IN TASKBAR CLOCK
+:: ==========================================================
+
+echo [16] Enabling seconds in taskbar clock...
+
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" ^
+ /v ShowSecondsInSystemClock /t REG_DWORD /d 1 /f >nul
+
+echo [OK] Taskbar clock seconds enabled.
+echo.
+
+:: ==========================================================
+:: MUTE MASTER AUDIO VOLUME
+:: ==========================================================
+
+echo Setting audio volume to 0...
+
+powershell -NoProfile -Command ^
+ "$wScript = New-Object -ComObject WScript.Shell; " ^
+ "1..50 | ForEach-Object { $wScript.SendKeys([char]174) }" >nul 2>&1
+
+echo [OK] Master volume muted.
+echo.
+
+:: ==========================================================
+:: SET SYSTEM SLEEP / TIMEOUT (1 HOUR)
+:: ==========================================================
+
+echo Setting system idle timeout to 60 minutes...
+
+powercfg /change standby-timeout-ac 60
+powercfg /change standby-timeout-dc 60
+
+echo [OK] System timeout set to 60 minutes.
 echo.
 
 :: ==========================================================
