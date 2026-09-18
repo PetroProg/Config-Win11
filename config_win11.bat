@@ -287,10 +287,10 @@ if exist "%ProgramFiles%\BraveSoftware\Brave-Browser\Application\brave.exe" (
     echo [OK] Brave is already installed.
 ) else (
     where winget >nul 2>&1
-    if %errorlevel%==0 (
+     if not errorlevel 1 (
         echo Installing Brave Browser via winget, please wait...
         winget install --id Brave.Brave --silent --accept-package-agreements --accept-source-agreements
-        if %errorlevel%==0 (
+         if not errorlevel 1 (
             echo [OK] Brave Browser installed.
         ) else (
             echo [WARNING] Brave installation failed. Install manually from https://brave.com
@@ -298,6 +298,34 @@ if exist "%ProgramFiles%\BraveSoftware\Brave-Browser\Application\brave.exe" (
     ) else (
         echo [WARNING] winget not found. Cannot auto-install Brave.
         echo Please install manually from https://brave.com
+    )
+)
+echo.
+
+:: ==========================================================
+:: INSTALL ANTIGRAVITY
+:: ==========================================================
+
+echo Checking Antigravity...
+
+if exist "%ProgramFiles%\Antigravity\Antigravity.exe" (
+    echo [OK] Antigravity is already installed.
+) else if exist "%ProgramFiles(x86)%\Antigravity\Antigravity.exe" (
+    echo [OK] Antigravity is already installed.
+) else if exist "%LocalAppData%\Programs\Antigravity\Antigravity.exe" (
+    echo [OK] Antigravity is already installed.
+) else (
+    where winget >nul 2>&1
+    if not errorlevel 1 (
+        echo Installing Antigravity via winget, please wait...
+        winget install --id Google.Antigravity --silent --accept-package-agreements --accept-source-agreements
+        if not errorlevel 1 (
+            echo [OK] Antigravity installed successfully.
+        ) else (
+            echo [WARNING] Antigravity installation failed. Check package ID or install manually.
+        )
+    ) else (
+        echo [WARNING] winget not found. Cannot auto-install Antigravity.
     )
 )
 echo.
