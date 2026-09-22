@@ -59,6 +59,31 @@ reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "S
 powercfg /change standby-timeout-ac 5
 powercfg /change standby-timeout-dc 5
 
+:: 17. Restore default File Explorer compact mode, full path and drive letters
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" /v "UseCompactMode" /f > nul 2>&1
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\CabinetState" /v "FullPath" /f > nul 2>&1
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer" /v "ShowDriveLettersFirst" /f > nul 2>&1
+
+:: 18. Restore Bing web search & suggestions in Start menu
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" /v "BingSearchEnabled" /f > nul 2>&1
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" /v "CortanaConsent" /f > nul 2>&1
+reg delete "HKCU\Software\Policies\Microsoft\Windows\Explorer" /v "DisableSearchBoxSuggestions" /f > nul 2>&1
+
+:: 19. Restore consumer suggestions and promoted apps
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SilentInstalledAppsEnabled" /f > nul 2>&1
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SystemPaneSuggestionsEnabled" /f > nul 2>&1
+reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-338389Enabled" /f > nul 2>&1
+
+:: 20. Restore Sticky Keys shortcut (default flags: 510)
+reg add "HKCU\Control Panel\Accessibility\StickyKeys" /v "Flags" /t REG_SZ /d "510" /f > nul
+
+:: 21. Remove custom developer context menu entries
+reg delete "HKCU\Software\Classes\*\shell\VSCode" /f > nul 2>&1
+reg delete "HKCU\Software\Classes\Directory\shell\VSCode" /f > nul 2>&1
+reg delete "HKCU\Software\Classes\Directory\Background\shell\VSCode" /f > nul 2>&1
+reg delete "HKCU\Software\Classes\Directory\shell\git_shell" /f > nul 2>&1
+reg delete "HKCU\Software\Classes\Directory\Background\shell\git_shell" /f > nul 2>&1
+
 :: Restart Windows Explorer to apply changes
 echo Restarting Windows Explorer...
 taskkill /f /im explorer.exe > nul

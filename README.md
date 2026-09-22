@@ -24,25 +24,37 @@ A collection of lightweight Batch scripts designed to customize the Windows 11 u
    - Enables system-wide **Dark Theme**.
    - Disables window **Transparency Effects**.
    - Optimizes and reduces unnecessary **UI Animations** for improved performance.
-2. **Taskbar & Clock**
+2. **Taskbar, Start Menu & Privacy**
    - Aligns taskbar icons to the **Left**.
-   - Reduces taskbar icon size (`TaskbarSi`).
+   - Reduces taskbar icon size (`TaskbarSi`, where supported by OS).
    - Displays **Seconds in System Clock** (`ShowSecondsInSystemClock`).
    - Hides **Task View**, **Widgets / News & Interests** buttons.
    - Sets Search to **Icon-only** mode.
+   - Disables **Bing Web Search Suggestions** in the Start menu.
+   - Disables **Consumer Suggestions & Promoted Apps** (Candy Crush, TikTok, etc.).
    - Disables Start menu recommendations and recent files list.
-3. **File Explorer & System**
+   - Disables **Sticky Keys Shortcut** (prompt when pressing Shift 5 times).
+3. **File Explorer & Developer Integration**
    - Restores the **Classic Windows 10 Right-Click Context Menu**.
    - Configures File Explorer to open to **This PC** instead of Quick Access / Home.
+   - Enables File Explorer **Compact Mode** (classic list density).
+   - Shows **Full Path in File Explorer Title Bar**.
+   - Displays **Drive Letters First** before drive names.
    - Enables visibility of **File Extensions** (`.exe`, `.txt`, `.jpg`, etc.).
    - Enables visibility of **Hidden Files and Folders**.
    - Restores classic **Desktop Icons** (*This PC*, *Recycle Bin*, *User Folder*).
-4. **Audio & Power Settings**
+   - Registers user-level **Developer Context Menus** ("Open with Code" and "Git Bash Here").
+4. **Audio & System Preferences**
    - Mutes master speaker volume to **0%**.
    - Sets system idle sleep timeout to **60 minutes** (1 hour).
-5. **Language & Software**
+   - Sets PowerShell **ExecutionPolicy** to `RemoteSigned` for `CurrentUser`.
+5. **Language & Software (User Scope)**
    - Updates keyboard layouts: removes German (`de-DE`) and adds Russian (`ru-RU`).
-   - Checks and installs **Brave Browser** via `winget` (if not already installed).
+   - Checks and installs **Brave Browser** via `winget --scope user`.
+   - Checks and installs **Google Antigravity** via `winget --scope user`.
+   - Checks and installs **Visual Studio Code** via `winget --scope user`.
+   - Checks and installs **Git for Windows (Git Bash)** via `winget --scope user`.
+   - Configures Git default editor to VS Code (`git config --global core.editor "code --wait"`).
 
 ---
 
@@ -53,10 +65,14 @@ A collection of lightweight Batch scripts designed to customize the Windows 11 u
 3. Hides seconds from the taskbar clock.
 4. Reverts to the modern Windows 11 **Context Menu**.
 5. Sets File Explorer back to open **Quick Access / Home**.
-6. Hides file extensions and hidden system files.
-7. Restores default desktop icons layout (Recycle Bin only).
-8. Restores UI animations and Start menu recommendations.
-9. Resets standby sleep timeout back to **5 minutes**.
+6. Restores standard File Explorer padding (disables compact mode), hides full path in title bar, and resets drive letter display.
+7. Hides file extensions and hidden system files.
+8. Restores default desktop icons layout (Recycle Bin only).
+9. Restores UI animations and Start menu recommendations.
+10. Restores Bing search suggestions and consumer app promotions in Start menu.
+11. Restores Sticky Keys shortcut prompt.
+12. Removes custom developer context menu entries ("Open with Code" and "Git Bash Here").
+13. Resets standby sleep timeout back to **5 minutes**.
 
 ---
 
