@@ -375,25 +375,43 @@ echo.
 
 echo Checking Brave Browser...
 
-if exist "%ProgramFiles%\BraveSoftware\Brave-Browser\Application\brave.exe" (
-    echo [OK] Brave is already installed.
-) else if exist "%ProgramFiles(x86)%\BraveSoftware\Brave-Browser\Application\brave.exe" (
-    echo [OK] Brave is already installed.
-) else if exist "%LocalAppData%\BraveSoftware\Brave-Browser\Application\brave.exe" (
+set "BRAVE_INSTALLED=0"
+if exist "%ProgramFiles%\BraveSoftware\Brave-Browser\Application\brave.exe" set "BRAVE_INSTALLED=1"
+if exist "%ProgramFiles(x86)%\BraveSoftware\Brave-Browser\Application\brave.exe" set "BRAVE_INSTALLED=1"
+if exist "%ProgramW6432%\BraveSoftware\Brave-Browser\Application\brave.exe" set "BRAVE_INSTALLED=1"
+if exist "%LocalAppData%\BraveSoftware\Brave-Browser\Application\brave.exe" set "BRAVE_INSTALLED=1"
+if exist "%LocalAppData%\Microsoft\WindowsApps\brave.exe" set "BRAVE_INSTALLED=1"
+where brave >nul 2>&1 && set "BRAVE_INSTALLED=1"
+
+if "%BRAVE_INSTALLED%"=="1" (
     echo [OK] Brave is already installed.
 ) else (
+    echo Installing Brave Browser (User Scope), please wait...
     where winget >nul 2>&1
     if not errorlevel 1 (
-        echo Installing Brave Browser via winget (User Scope), please wait...
-        winget install --id Brave.Brave -e --source winget --scope user --silent --accept-package-agreements --accept-source-agreements
-        if not errorlevel 1 (
-            echo [OK] Brave Browser installed.
+        :: Install from Microsoft Store source which supports user installation
+        winget install --id XP8C9QZMS2PC1T -e --source msstore --accept-package-agreements --accept-source-agreements
+    )
+    if exist "%LocalAppData%\BraveSoftware\Brave-Browser\Application\brave.exe" (
+        echo [OK] Brave Browser installed successfully.
+    ) else if exist "%ProgramFiles%\BraveSoftware\Brave-Browser\Application\brave.exe" (
+        echo [OK] Brave Browser installed successfully.
+    ) else (
+        echo Downloading official user-level Brave installer...
+        powershell -NoProfile -Command ^
+         "$installer = Join-Path $env:TEMP 'BraveSetup.exe'; " ^
+         "try { " ^
+         "  Invoke-WebRequest -Uri 'https://laptop-updates.brave.com/latest/winx64' -OutFile $installer -UseBasicParsing; " ^
+         "  Start-Process -FilePath $installer -ArgumentList '--silent --install' -Wait; " ^
+         "  Remove-Item -Path $installer -Force -ErrorAction SilentlyContinue; " ^
+         "} catch { Write-Warning $_.Exception.Message }" >nul 2>&1
+        if exist "%LocalAppData%\BraveSoftware\Brave-Browser\Application\brave.exe" (
+            echo [OK] Brave Browser installed successfully.
+        ) else if exist "%ProgramFiles%\BraveSoftware\Brave-Browser\Application\brave.exe" (
+            echo [OK] Brave Browser installed successfully.
         ) else (
             echo [WARNING] Brave installation failed. Install manually from https://brave.com
         )
-    ) else (
-        echo [WARNING] winget not found. Cannot auto-install Brave.
-        echo Please install manually from https://brave.com
     )
 )
 echo.
@@ -404,21 +422,33 @@ echo.
 
 echo Checking Antigravity...
 
-if exist "%ProgramFiles%\Antigravity\Antigravity.exe" (
-    echo [OK] Antigravity is already installed.
-) else if exist "%ProgramFiles(x86)%\Antigravity\Antigravity.exe" (
-    echo [OK] Antigravity is already installed.
-) else if exist "%LocalAppData%\Programs\Antigravity\Antigravity.exe" (
+set "ANTIGRAVITY_INSTALLED=0"
+if exist "%ProgramFiles%\Antigravity\Antigravity.exe" set "ANTIGRAVITY_INSTALLED=1"
+if exist "%ProgramFiles(x86)%\Antigravity\Antigravity.exe" set "ANTIGRAVITY_INSTALLED=1"
+if exist "%ProgramW6432%\Antigravity\Antigravity.exe" set "ANTIGRAVITY_INSTALLED=1"
+if exist "%LocalAppData%\Programs\Antigravity\Antigravity.exe" set "ANTIGRAVITY_INSTALLED=1"
+if exist "%LocalAppData%\Programs\Antigravity IDE\Antigravity.exe" set "ANTIGRAVITY_INSTALLED=1"
+if exist "%ProgramFiles%\Antigravity IDE\Antigravity.exe" set "ANTIGRAVITY_INSTALLED=1"
+where antigravity >nul 2>&1 && set "ANTIGRAVITY_INSTALLED=1"
+where agy >nul 2>&1 && set "ANTIGRAVITY_INSTALLED=1"
+
+if "%ANTIGRAVITY_INSTALLED%"=="1" (
     echo [OK] Antigravity is already installed.
 ) else (
     where winget >nul 2>&1
     if not errorlevel 1 (
         echo Installing Antigravity via winget (User Scope), please wait...
-        winget install --id Google.Antigravity -e --source winget --scope user --silent --accept-package-agreements --accept-source-agreements
+        :: Install user-scoped Antigravity IDE
+        winget install --id Google.AntigravityIDE -e --source winget --scope user --silent --accept-package-agreements --accept-source-agreements
         if not errorlevel 1 (
             echo [OK] Antigravity installed successfully.
         ) else (
-            echo [WARNING] Antigravity installation failed. Check package ID or install manually.
+            winget install --id Google.Antigravity -e --source winget --silent --accept-package-agreements --accept-source-agreements
+            if not errorlevel 1 (
+                echo [OK] Antigravity installed successfully.
+            ) else (
+                echo [WARNING] Antigravity installation failed. Install manually from https://antigravity.google
+            )
         )
     ) else (
         echo [WARNING] winget not found. Cannot auto-install Antigravity.
@@ -596,22 +626,21 @@ echo [OK] Taskbar pins updated.
 echo.
 
 :: ==========================================================
-:: RESTART EXPLORER
+:: RESTART EXPLORER & REFRESH SHELL
 :: ==========================================================
 
 echo.
 echo ==========================================================
-echo Restarting Windows Explorer...
+echo Restarting Windows Explorer and modern shell...
 echo ==========================================================
 echo.
 
-taskkill /f /im explorer.exe >nul 2>&1
+powershell -NoProfile -Command ^
+ "Stop-Process -Name 'explorer', 'StartMenuExperienceHost', 'ShellExperienceHost' -Force -ErrorAction SilentlyContinue; " ^
+ "Start-Sleep -Seconds 1; " ^
+ "if (-not (Get-Process explorer -ErrorAction SilentlyContinue)) { Start-Process (Join-Path $env:SystemRoot 'explorer.exe') }" >nul 2>&1
 
 timeout /t 2 /nobreak >nul
-
-start "" explorer.exe
-
-timeout /t 3 /nobreak >nul
 
 echo.
 echo ==========================================================
