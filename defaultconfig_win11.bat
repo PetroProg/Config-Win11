@@ -86,11 +86,18 @@ reg delete "HKCU\Software\Classes\Directory\Background\shell\git_shell" /f > nul
 
 :: Restart Windows Explorer to apply changes
 echo Restarting Windows Explorer and modern shell...
-powershell -NoProfile -Command ^
- "Stop-Process -Name 'explorer', 'StartMenuExperienceHost', 'ShellExperienceHost' -Force -ErrorAction SilentlyContinue; " ^
- "Start-Sleep -Seconds 1; " ^
- "if (-not (Get-Process explorer -ErrorAction SilentlyContinue)) { Start-Process (Join-Path $env:SystemRoot 'explorer.exe') }" >nul 2>&1
-timeout /t 2 /nobreak > nul
+taskkill /f /im explorer.exe >nul 2>&1
+taskkill /f /im StartMenuExperienceHost.exe >nul 2>&1
+taskkill /f /im ShellExperienceHost.exe >nul 2>&1
+
+timeout /t 1 /nobreak >nul
+
+tasklist /fi "imagename eq explorer.exe" 2>nul | find /i "explorer.exe" >nul
+if errorlevel 1 (
+    start "" "%windir%\explorer.exe"
+)
+
+timeout /t 2 /nobreak >nul
 
 echo Done! All settings have been restored to default Windows 11 behavior.
 pause
