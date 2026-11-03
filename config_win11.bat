@@ -385,32 +385,18 @@ where brave >nul 2>&1 && set "BRAVE_INSTALLED=1"
 
 if "%BRAVE_INSTALLED%"=="1" (
     echo [OK] Brave is already installed.
-) else (
-    echo Installing Brave Browser (User Scope), please wait...
-    powershell -NoProfile -Command ^
-     "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; " ^
-     "$installer = Join-Path $env:TEMP 'BraveSetup.exe'; " ^
-     "try { " ^
-     "  Invoke-WebRequest -Uri 'https://laptop-updates.brave.com/latest/winx64' -OutFile $installer -UseBasicParsing; " ^
-     "  $proc = Start-Process -FilePath $installer -ArgumentList '--install --silent' -PassThru; " ^
-     "  $proc.WaitForExit(); " ^
-     "  $limit = 45; " ^
-     "  while ((Get-Process -Name 'BraveBrowserSetup', 'brave_installer*' -ErrorAction SilentlyContinue) -and ($limit -gt 0)) { " ^
-     "    Start-Sleep -Seconds 2; $limit -= 2; " ^
-     "  }; " ^
-     "} catch { " ^
-     "  Write-Host ('Download error: ' + $_.Exception.Message); " ^
-     "} finally { " ^
-     "  Remove-Item -Path $installer -Force -ErrorAction SilentlyContinue; " ^
-     "}"
-    if exist "%LocalAppData%\BraveSoftware\Brave-Browser\Application\brave.exe" (
-        echo [OK] Brave Browser installed successfully.
-    ) else if exist "%ProgramFiles%\BraveSoftware\Brave-Browser\Application\brave.exe" (
-        echo [OK] Brave Browser installed successfully.
-    ) else (
-        echo [WARNING] Brave installation failed. Install manually from https://brave.com
-    )
+    goto SkipBrave
 )
+
+echo Installing Brave Browser via winget (User Scope), please wait...
+winget install --id Brave.Brave -e --source winget --scope user --silent --accept-package-agreements --accept-source-agreements
+if not errorlevel 1 (
+    echo [OK] Brave Browser installed successfully.
+) else (
+    echo [WARNING] Brave installation failed. Install manually from https://brave.com
+)
+
+:SkipBrave
 echo.
 
 :: ==========================================================
@@ -424,278 +410,43 @@ if exist "%ProgramFiles%\Antigravity\Antigravity.exe" set "ANTIGRAVITY_INSTALLED
 if exist "%ProgramFiles(x86)%\Antigravity\Antigravity.exe" set "ANTIGRAVITY_INSTALLED=1"
 if exist "%ProgramW6432%\Antigravity\Antigravity.exe" set "ANTIGRAVITY_INSTALLED=1"
 if exist "%LocalAppData%\Programs\Antigravity\Antigravity.exe" set "ANTIGRAVITY_INSTALLED=1"
-if exist "%LocalAppData%\Programs\Antigravity IDE\Antigravity.exe" set "ANTIGRAVITY_INSTALLED=1"
-if exist "%ProgramFiles%\Antigravity IDE\Antigravity.exe" set "ANTIGRAVITY_INSTALLED=1"
 where antigravity >nul 2>&1 && set "ANTIGRAVITY_INSTALLED=1"
 where agy >nul 2>&1 && set "ANTIGRAVITY_INSTALLED=1"
 
 if "%ANTIGRAVITY_INSTALLED%"=="1" (
     echo [OK] Antigravity is already installed.
-) else (
-    echo Installing Antigravity (User Scope), please wait...
-    where winget >nul 2>&1
-    if not errorlevel 1 (
-        winget install --id Google.AntigravityIDE -e --source winget --scope user --silent --override "/CURRENTUSER /VERYSILENT /SUPPRESSMSGBOXES /NORESTART" --accept-package-agreements --accept-source-agreements
-    )
-    if exist "%LocalAppData%\Programs\Antigravity IDE\Antigravity.exe" (
-        echo [OK] Antigravity installed successfully.
-    ) else if exist "%LocalAppData%\Programs\Antigravity\Antigravity.exe" (
-        echo [OK] Antigravity installed successfully.
-    ) else (
-        echo Downloading official Antigravity IDE user installer...
-        powershell -NoProfile -Command ^
-         "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; " ^
-         "$installer = Join-Path $env:TEMP 'AntigravitySetup.exe'; " ^
-         "try { " ^
-         "  Invoke-WebRequest -Uri 'https://edgedl.me.gvt1.com/edgedl/release2/j0qc3/antigravity/stable/2.5.5-4923483625488384/windows-x64/Antigravity%%20IDE.exe' -OutFile $installer -UseBasicParsing; " ^
-         "  Start-Process -FilePath $installer -ArgumentList '/CURRENTUSER /VERYSILENT /SUPPRESSMSGBOXES /NORESTART' -Wait; " ^
-         "} catch { " ^
-         "  Write-Host ('Download error: ' + $_.Exception.Message); " ^
-         "} finally { " ^
-         "  Remove-Item -Path $installer -Force -ErrorAction SilentlyContinue; " ^
-         "}"
-        if exist "%LocalAppData%\Programs\Antigravity IDE\Antigravity.exe" (
-            echo [OK] Antigravity installed successfully.
-        ) else if exist "%LocalAppData%\Programs\Antigravity\Antigravity.exe" (
-            echo [OK] Antigravity installed successfully.
-        ) else (
-            echo [WARNING] Antigravity installation failed. Install manually from https://antigravity.google
-        )
-    )
+    goto SkipAntigravity
 )
-echo.
 
-:: ==========================================================
-:: INSTALL VISUAL STUDIO CODE (USER SCOPE)
-:: ==========================================================
-
-echo Checking Visual Studio Code...
-
-where code >nul 2>&1
+echo Installing Antigravity (User Scope), please wait...
+where winget >nul 2>&1
 if not errorlevel 1 (
-    echo [OK] Visual Studio Code is already installed and in PATH.
-) else if exist "%LocalAppData%\Programs\Microsoft VS Code\Code.exe" (
-    echo [OK] Visual Studio Code is already installed.
-) else (
-    where winget >nul 2>&1
-    if not errorlevel 1 (
-        echo Installing Visual Studio Code via winget (User Scope), please wait...
-        winget install --id Microsoft.VisualStudioCode -e --source winget --scope user --silent --accept-package-agreements --accept-source-agreements
-        if not errorlevel 1 (
-            echo [OK] Visual Studio Code installed successfully.
-        ) else (
-            echo [WARNING] VS Code installation failed. Install manually from https://code.visualstudio.com
-        )
-    ) else (
-        echo [WARNING] winget not found. Cannot auto-install VS Code.
-    )
+    winget install --id Google.Antigravity -e --source winget --scope user --silent --override "/CURRENTUSER /SILENT /NORESTART" --accept-package-agreements --accept-source-agreements
 )
-echo.
 
-:: ==========================================================
-:: INSTALL GIT BASH (USER SCOPE)
-:: ==========================================================
-
-echo Checking Git Bash...
-
-where git >nul 2>&1
-if not errorlevel 1 (
-    echo [OK] Git is already installed and in PATH.
-) else if exist "%LocalAppData%\Programs\Git\cmd\git.exe" (
-    echo [OK] Git is already installed.
-) else (
-    where winget >nul 2>&1
-    if not errorlevel 1 (
-        echo Installing Git Bash via winget (User Scope), please wait...
-        winget install --id Git.Git -e --source winget --scope user --silent --accept-package-agreements --accept-source-agreements
-        if not errorlevel 1 (
-            echo [OK] Git Bash installed successfully.
-        ) else (
-            echo [WARNING] Git Bash installation failed. Install manually from https://git-scm.com
-        )
-    ) else (
-        echo [WARNING] winget not found. Cannot auto-install Git Bash.
-    )
+if exist "%LocalAppData%\Programs\Antigravity\Antigravity.exe" (
+    echo [OK] Antigravity installed successfully.
+    goto SkipAntigravity
 )
-echo.
 
-:: ==========================================================
-:: CONFIGURE GIT DEFAULT EDITOR
-:: ==========================================================
-
-echo Configuring Git default editor...
-
+echo Downloading official Antigravity user installer...
 powershell -NoProfile -Command ^
- "if (Get-Command git -ErrorAction SilentlyContinue) { git config --global core.editor 'code --wait' }" >nul 2>&1
+ "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; " ^
+ "$installer = Join-Path $env:TEMP 'AntigravitySetup.exe'; " ^
+ "try { " ^
+ "  Invoke-WebRequest -Uri 'https://edgedl.me.gvt1.com/edgedl/release2/j0qc3/antigravity/stable/2.5.5-4923483625488384/windows-x64/Antigravity.exe' -OutFile $installer -UseBasicParsing; " ^
+ "  Start-Process -FilePath $installer -ArgumentList '/CURRENTUSER /SILENT /NORESTART' -Wait; " ^
+ "} catch { " ^
+ "  Write-Host ('Download error: ' + $_.Exception.Message); " ^
+ "} finally { " ^
+ "  Remove-Item -Path $installer -Force -ErrorAction SilentlyContinue; " ^
+ "}"
 
-echo [OK] Git default editor checked.
-echo.
-
-:: ==========================================================
-:: DEVELOPER CONTEXT MENUS (USER LEVEL)
-:: ==========================================================
-
-echo Registering developer context menus (Open with Code, Git Bash Here)...
-
-:: Locate VS Code executable path
-set "VSCODE_EXE="
-if exist "%LocalAppData%\Programs\Microsoft VS Code\Code.exe" (
-    set "VSCODE_EXE=%LocalAppData%\Programs\Microsoft VS Code\Code.exe"
+if exist "%LocalAppData%\Programs\Antigravity\Antigravity.exe" (
+    echo [OK] Antigravity installed successfully.
 ) else (
-    for /f "delims=" %%i in ('where code.cmd 2^>nul') do (
-        if exist "%%~dpi..\Code.exe" set "VSCODE_EXE=%%~dpi..\Code.exe"
-    )
+    echo [WARNING] Antigravity installation failed. Install manually.
 )
 
-if defined VSCODE_EXE (
-    :: Right-click on file
-    reg add "HKCU\Software\Classes\*\shell\VSCode" /ve /t REG_SZ /d "Open with Code" /f >nul
-    reg add "HKCU\Software\Classes\*\shell\VSCode" /v "Icon" /t REG_SZ /d "\"%VSCODE_EXE%\"" /f >nul
-    reg add "HKCU\Software\Classes\*\shell\VSCode\command" /ve /t REG_SZ /d "\"%VSCODE_EXE%\" \"%%1\"" /f >nul
-
-    :: Right-click on directory
-    reg add "HKCU\Software\Classes\Directory\shell\VSCode" /ve /t REG_SZ /d "Open with Code" /f >nul
-    reg add "HKCU\Software\Classes\Directory\shell\VSCode" /v "Icon" /t REG_SZ /d "\"%VSCODE_EXE%\"" /f >nul
-    reg add "HKCU\Software\Classes\Directory\shell\VSCode\command" /ve /t REG_SZ /d "\"%VSCODE_EXE%\" \"%%V\"" /f >nul
-
-    :: Right-click on directory background
-    reg add "HKCU\Software\Classes\Directory\Background\shell\VSCode" /ve /t REG_SZ /d "Open with Code" /f >nul
-    reg add "HKCU\Software\Classes\Directory\Background\shell\VSCode" /v "Icon" /t REG_SZ /d "\"%VSCODE_EXE%\"" /f >nul
-    reg add "HKCU\Software\Classes\Directory\Background\shell\VSCode\command" /ve /t REG_SZ /d "\"%VSCODE_EXE%\" \"%%V\"" /f >nul
-)
-
-:: Locate Git Bash executable path
-set "GIT_BASH_EXE="
-if exist "%LocalAppData%\Programs\Git\git-bash.exe" (
-    set "GIT_BASH_EXE=%LocalAppData%\Programs\Git\git-bash.exe"
-) else if exist "%ProgramFiles%\Git\git-bash.exe" (
-    set "GIT_BASH_EXE=%ProgramFiles%\Git\git-bash.exe"
-) else if exist "%ProgramFiles(x86)%\Git\git-bash.exe" (
-    set "GIT_BASH_EXE=%ProgramFiles(x86)%\Git\git-bash.exe"
-)
-
-if defined GIT_BASH_EXE (
-    :: Right-click on directory
-    reg add "HKCU\Software\Classes\Directory\shell\git_shell" /ve /t REG_SZ /d "Git Bash Here" /f >nul
-    reg add "HKCU\Software\Classes\Directory\shell\git_shell" /v "Icon" /t REG_SZ /d "\"%GIT_BASH_EXE%\"" /f >nul
-    reg add "HKCU\Software\Classes\Directory\shell\git_shell\command" /ve /t REG_SZ /d "\"%GIT_BASH_EXE%\" \"--cd=%%1\"" /f >nul
-
-    :: Right-click on directory background
-    reg add "HKCU\Software\Classes\Directory\Background\shell\git_shell" /ve /t REG_SZ /d "Git Bash Here" /f >nul
-    reg add "HKCU\Software\Classes\Directory\Background\shell\git_shell" /v "Icon" /t REG_SZ /d "\"%GIT_BASH_EXE%\"" /f >nul
-    reg add "HKCU\Software\Classes\Directory\Background\shell\git_shell\command" /ve /t REG_SZ /d "\"%GIT_BASH_EXE%\" \"--cd=%%V\"" /f >nul
-)
-
-echo [OK] Developer context menus registered.
+:SkipAntigravity
 echo.
-
-:: ==========================================================
-:: REMOVE ONEDRIVE SYSTEM TRAY ICON
-:: ==========================================================
-
-echo Hiding OneDrive icon from system tray...
-
-:: Prevent OneDrive from autostarting with Windows
-reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "OneDrive" /f >nul 2>&1
-reg delete "HKCU\Software\Microsoft\Windows\CurrentVersion\Run" /v "OneDriveSetup" /f >nul 2>&1
-
-:: Kill running OneDrive process
-taskkill /f /im OneDrive.exe >nul 2>&1
-
-echo [OK] OneDrive autostart disabled and icon removed.
-echo.
-
-:: ==========================================================
-:: UNPIN MICROSOFT STORE & PIN BRAVE TO TASKBAR
-:: ==========================================================
-
-echo Managing Taskbar pinned icons...
-
-powershell -NoProfile -Command ^
- "$path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Taskband'; " ^
- "if (Test-Path $path) { " ^
- "  $bytes = Get-ItemPropertyValue -Path $path -Name 'Favorites' -ErrorAction SilentlyContinue; " ^
- "}" >nul 2>&1
-
-:: Delete pinned Taskbar shortcuts via shell XML/Registry profile
-powershell -NoProfile -Command ^
- "$TaskbandPath = '$env:APPDATA\Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar'; " ^
- "Get-ChildItem -Path $TaskbandPath -Filter '*Microsoft Store*' -ErrorAction SilentlyContinue | Remove-Item -Force; " ^
- "$BravePath = 'C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe'; " ^
- "if (-not (Test-Path $BravePath)) { $BravePath = 'C:\Program Files (x86)\BraveSoftware\Brave-Browser\Application\brave.exe' }; " ^
- "if (-not (Test-Path $BravePath)) { $BravePath = \"$env:LOCALAPPDATA\BraveSoftware\Brave-Browser\Application\brave.exe\" }; " ^
- "if (Test-Path $BravePath) { " ^
- "  $wsh = New-Object -ComObject WScript.Shell; " ^
- "  $sc = $wsh.CreateShortcut(\"$TaskbandPath\Brave.lnk\"); " ^
- "  $sc.TargetPath = $BravePath; " ^
- "  $sc.Save(); " ^
- "}" >nul 2>&1
-
-echo [OK] Taskbar pins updated.
-echo.
-
-:: ==========================================================
-:: RESTART EXPLORER & REFRESH SHELL
-:: ==========================================================
-
-echo.
-echo ==========================================================
-echo Restarting Windows Explorer and modern shell...
-echo ==========================================================
-echo.
-
-taskkill /f /im explorer.exe >nul 2>&1
-taskkill /f /im StartMenuExperienceHost.exe >nul 2>&1
-taskkill /f /im ShellExperienceHost.exe >nul 2>&1
-
-timeout /t 1 /nobreak >nul
-
-tasklist /fi "imagename eq explorer.exe" 2>nul | find /i "explorer.exe" >nul
-if errorlevel 1 (
-    start "" "%windir%\explorer.exe"
-)
-
-timeout /t 2 /nobreak >nul
-
-echo.
-echo ==========================================================
-echo                 DONE!
-echo ==========================================================
-echo.
-echo Windows 11 has been customized to Windows 10 style.
-echo.
-echo Summary of changes:
-echo.
-echo   [OK] Left-aligned taskbar
-echo   [OK] Small taskbar icons (where supported)
-echo   [OK] Disabled Task View
-echo   [OK] Disabled Widgets and News feed
-echo   [OK] Search icon mode
-echo   [OK] Classic context menu
-echo   [OK] Dark mode enabled
-echo   [OK] Desktop icons visible
-echo   [OK] File extensions shown
-echo   [OK] Hidden files shown
-echo   [OK] File Explorer compact mode enabled
-echo   [OK] Full path in File Explorer title bar
-echo   [OK] File Explorer opens to "This PC"
-echo   [OK] Transparency disabled
-echo   [OK] Bing search and app suggestions disabled
-echo   [OK] Sticky Keys shortcut disabled
-echo   [OK] PowerShell ExecutionPolicy set to RemoteSigned (CurrentUser)
-echo   [OK] Brave Browser checked/installed (User Scope)
-echo   [OK] Antigravity checked/installed (User Scope)
-echo   [OK] Visual Studio Code checked/installed (User Scope)
-echo   [OK] Git Bash checked/installed (User Scope)
-echo   [OK] Developer context menus registered ("Open with Code", "Git Bash Here")
-echo.
-echo ==========================================================
-echo.
-echo NOTE:
-echo Some changes may require logging out or restarting Windows.
-echo If the News feed icon still appears, right-click the taskbar,
-echo choose "Widgets" settings, or restart the PC once to fully apply.
-echo.
-pause
-
-endlocal
