@@ -450,3 +450,25 @@ if exist "%LocalAppData%\Programs\Antigravity\Antigravity.exe" (
 
 :SkipAntigravity
 echo.
+
+:: ==========================================================
+:: RESTART EXPLORER / SHELL TO APPLY CHANGES
+:: ==========================================================
+
+echo Restarting Windows Explorer and modern shell...
+taskkill /f /im explorer.exe >nul 2>&1
+taskkill /f /im StartMenuExperienceHost.exe >nul 2>&1
+taskkill /f /im ShellExperienceHost.exe >nul 2>&1
+
+timeout /t 1 /nobreak >nul
+
+tasklist /fi "imagename eq explorer.exe" 2>nul | find /i "explorer.exe" >nul
+if errorlevel 1 (
+    start "" "%windir%\explorer.exe"
+)
+
+timeout /t 2 /nobreak >nul
+
+echo.
+echo [DONE] All Windows 10 style tweaks have been applied successfully.
+pause
